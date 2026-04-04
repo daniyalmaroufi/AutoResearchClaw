@@ -16,7 +16,6 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 import weakref
@@ -199,7 +198,13 @@ class ACPClient:
         return os.path.abspath(self.config.cwd)
 
     def _ensure_session(self) -> None:
-        """Find or create the named acpx session."""
+        """Find or create the named acpx session.
+
+        After creating or reconnecting a session, sends a disposable warm-up
+        prompt.  Without this, the agent's cold-start greeting (e.g. "The
+        model has been set to …") is returned as the response to the first
+        real prompt, swallowing the actual request.
+        """
         if self._session_ready:
             return
         acpx = self._resolve_acpx()
@@ -227,6 +232,29 @@ class ACPClient:
                 raise RuntimeError(
                     f"Failed to create ACP session: {result.stderr.strip()}"
                 )
+
+        # Warm-up: consume the agent's cold-start greeting and set
+        # text-only mode so it does not use tools or pollute responses.
+        _warmup = (
+            "You are being used as a text-generation backend for a "
+            "research pipeline. For ALL subsequent prompts in this "
+            "session, you MUST respond with text output ONLY. "
+            "Do NOT use any tools — no file reads, no file writes, "
+            "no searches, no terminal commands. Generate your "
+            "complete response as plain text. Confirm with: OK"
+        )
+        try:
+            subprocess.run(
+                [acpx, "--approve-all", "--max-turns", "1",
+                 "--ttl", "0", "--cwd", self._abs_cwd(),
+                 self.config.agent, "-s", self.config.session_name,
+                 _warmup],
+                capture_output=True, text=True, encoding="utf-8",
+                errors="replace", timeout=60,
+            )
+        except Exception:  # noqa: BLE001
+            logger.debug("ACP warm-up prompt failed (non-fatal)")
+
         self._session_ready = True
         logger.info("ACP session '%s' ready (%s)", self.config.session_name, self.config.agent)
 
@@ -286,14 +314,18 @@ class ACPClient:
         if not acpx:
             raise RuntimeError("acpx not found")
 
+        # On Windows, .cmd/.bat wrappers route through cmd.exe which
+        # silently truncates multi-line CLI arguments.  Always use stdin
+        # pipe transport to avoid mangled prompts.
         prompt_bytes = len(prompt.encode("utf-8"))
         prompt_limit = self._cli_prompt_limit(acpx)
-        use_file = prompt_bytes > prompt_limit
+        use_file = prompt_bytes > prompt_limit or (
+            sys.platform == "win32" and "\n" in prompt
+        )
         if use_file:
             logger.info(
-                "Prompt too large for CLI arg (%d bytes > %d). Using temp file.",
+                "Using stdin-pipe prompt transport (%d bytes).",
                 prompt_bytes,
-                prompt_limit,
             )
 
         last_exc: RuntimeError | None = None
@@ -354,23 +386,36 @@ class ACPClient:
 
     def _run_acp_with_heartbeat(
         self, cmd: list[str], *, label: str = "ACP prompt",
+        input_data: str | None = None,
     ) -> subprocess.CompletedProcess[str]:
         """Run an ACP subprocess with periodic heartbeat logging.
 
         Instead of a silent blocking ``subprocess.run``, this uses ``Popen``
         with a background reader thread and logs a progress heartbeat every
         30 seconds so the user knows the agent is still working.
+
+        When *input_data* is provided, it is written to the process's stdin
+        (used for ``-f -`` stdin-pipe transport).
         """
         timeout = self.config.timeout_sec
         heartbeat_interval = 30  # seconds
 
         proc = subprocess.Popen(
             cmd,
+            stdin=subprocess.PIPE if input_data else None,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             encoding="utf-8",
             errors="replace",
         )
+
+        # Write stdin data and close immediately so the process can read it.
+        if input_data and proc.stdin:
+            try:
+                proc.stdin.write(input_data)
+                proc.stdin.close()
+            except OSError:
+                pass
 
         stdout_chunks: list[str] = []
         stderr_chunks: list[str] = []
@@ -421,7 +466,8 @@ class ACPClient:
     def _send_prompt_cli(self, acpx: str, prompt: str) -> str:
         """Send prompt as a CLI argument (original path)."""
         cmd = [
-            acpx, "--approve-all", "--ttl", "0", "--cwd", self._abs_cwd(),
+            acpx, "--approve-all", "--max-turns", "1",
+            "--ttl", "0", "--cwd", self._abs_cwd(),
             self.config.agent, "-s", self.config.session_name, prompt,
         ]
         try:
@@ -438,45 +484,29 @@ class ACPClient:
         return self._extract_response(result.stdout)
 
     def _send_prompt_via_file(self, acpx: str, prompt: str) -> str:
-        """Write prompt to a temp file, ask the agent to read and respond."""
-        fd, prompt_path = tempfile.mkstemp(
-            suffix=".md", prefix="rc_prompt_",
-        )
+        """Send prompt via stdin pipe (``-f -``) to avoid CLI arg limits."""
+        cmd = [
+            acpx, "--approve-all", "--max-turns", "1",
+            "--ttl", "0", "--cwd", self._abs_cwd(),
+            self.config.agent, "-s", self.config.session_name,
+            "-f", "-",
+        ]
         try:
-            with os.fdopen(fd, "w", encoding="utf-8") as f:
-                f.write(prompt)
+            result = self._run_acp_with_heartbeat(
+                cmd, label="ACP prompt (stdin)", input_data=prompt,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise RuntimeError(
+                f"ACP prompt timed out after {self.config.timeout_sec}s"
+            ) from exc
 
-            short_prompt = (
-                f"Read the file at {prompt_path} in its entirety. "
-                f"Follow ALL instructions contained in that file and "
-                f"respond exactly as requested. Do NOT summarize, "
-                f"just produce the requested output."
+        if result.returncode != 0:
+            stderr = (result.stderr or "").strip()
+            raise RuntimeError(
+                f"ACP prompt failed (exit {result.returncode}): {stderr}"
             )
 
-            cmd = [
-                acpx, "--approve-all", "--ttl", "0", "--cwd", self._abs_cwd(),
-                self.config.agent, "-s", self.config.session_name,
-                short_prompt,
-            ]
-            try:
-                result = self._run_acp_with_heartbeat(cmd, label="ACP prompt (file)")
-            except subprocess.TimeoutExpired as exc:
-                raise RuntimeError(
-                    f"ACP prompt timed out after {self.config.timeout_sec}s"
-                ) from exc
-
-            if result.returncode != 0:
-                stderr = (result.stderr or "").strip()
-                raise RuntimeError(
-                    f"ACP prompt failed (exit {result.returncode}): {stderr}"
-                )
-
-            return self._extract_response(result.stdout)
-        finally:
-            try:
-                os.unlink(prompt_path)
-            except OSError:
-                pass
+        return self._extract_response(result.stdout)
 
     @staticmethod
     def _extract_response(raw_output: str | None) -> str:
