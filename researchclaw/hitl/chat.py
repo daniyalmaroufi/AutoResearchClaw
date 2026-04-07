@@ -132,8 +132,9 @@ class ChatSession:
 
         try:
             response = llm_client.chat(messages)
-            self.add_ai_message(response)
-            return response
+            text = response.content if hasattr(response, "content") else str(response)
+            self.add_ai_message(text)
+            return text
         except Exception as exc:
             error_msg = f"[LLM error: {exc}]"
             logger.error("Chat LLM call failed: %s", exc)

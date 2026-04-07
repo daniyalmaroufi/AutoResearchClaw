@@ -599,10 +599,15 @@ class LLMClient:
         self, data: dict[str, Any], model: str
     ) -> LLMResponse:
         output_items = data.get("output")
-        if not isinstance(output_items, list) or not output_items:
+        if not isinstance(output_items, list):
             raise ValueError(
                 f"Malformed responses API payload: missing output. Got: {data}"
             )
+        if not output_items:
+            # Empty output list — API returned no content (e.g. reasoning-only
+            # response, empty completion).  Return empty response instead of
+            # crashing so the model-fallback loop can try the next model.
+            return LLMResponse(content="", model=model)
 
         chunks: list[str] = []
         finish_reason = str(data.get("status", "") or "")
