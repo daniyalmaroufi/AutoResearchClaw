@@ -96,6 +96,7 @@ class LLMClient:
         self.config = config
         self._model_chain = [config.primary_model] + list(config.fallback_models)
         self._anthropic = None  # Will be set by from_rc_config if needed
+        self._gemini = None  # Will be set by from_rc_config if needed
 
     @staticmethod
     def _normalize_wire_api(wire_api: str) -> str:
@@ -170,6 +171,12 @@ class LLMClient:
             from .anthropic_adapter import AnthropicAdapter
 
             client._anthropic = AnthropicAdapter(
+                original_base_url, original_api_key, config.timeout_sec
+            )
+        elif provider == "gemini":
+            from .gemini_adapter import GeminiAdapter
+
+            client._gemini = GeminiAdapter(
                 original_base_url, original_api_key, config.timeout_sec
             )
         return client
@@ -394,6 +401,10 @@ class LLMClient:
             data = self._anthropic.chat_completion(
                 model, messages, max_tokens, temperature, json_mode
             )
+        elif self._gemini:
+            data = self._gemini.chat_completion(
+                model, messages, max_tokens, temperature, json_mode
+            )
         else:
             # Original OpenAI logic
             # Copy messages to avoid mutating the caller's list (important for
@@ -443,6 +454,7 @@ class LLMClient:
                     or _model_lower.startswith("ernie")
                     or _model_lower.startswith("spark")
                     or _model_lower.startswith("gemma")
+                    or _model_lower.startswith("apple")
                     or self._normalize_wire_api(self.config.wire_api) == "responses"
                 )
                 if _no_response_format:

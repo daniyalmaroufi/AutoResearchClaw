@@ -184,7 +184,7 @@ def check_llm_connectivity(base_url: str, api_key: str = "") -> CheckResult:
                 detail=f"Reachable: {url}",
             )
     except urllib.error.HTTPError as exc:
-        if exc.code == 405:
+        if exc.code in (405, 404):
             try:
                 get_req = urllib.request.Request(url, headers=headers)
                 with urllib.request.urlopen(get_req, timeout=5):
