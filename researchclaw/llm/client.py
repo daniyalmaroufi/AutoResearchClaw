@@ -31,6 +31,7 @@ _NEW_PARAM_MODELS = frozenset(
         "gpt-5",
         "gpt-5.1",
         "gpt-5.2",
+        "gpt-5.3",
         "gpt-5.4",
     }
 )
@@ -162,6 +163,7 @@ class LLMClient:
             fallback_models=list(rc_config.llm.fallback_models or []),
             fallback_url=fallback_url,
             fallback_api_key=fallback_api_key,
+            timeout_sec=getattr(rc_config.llm, "timeout_sec", 600),
         )
         client = cls(config)
 

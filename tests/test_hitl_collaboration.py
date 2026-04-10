@@ -150,13 +150,71 @@ class TestCollaborationSession:
 
         collab = CollaborationSession(run_dir=tmp_path)
         collab.stage_num = 8
-        collab.shared_artifacts["output.md"] = "final content"
+        collab.shared_artifacts["output.md"] = "original"
+        collab.human_edits_artifact("output.md", "final content")
 
         result = collab.finalize()
         assert result["output.md"] == "final content"
         assert collab.finalized
         assert (stage_dir / "output.md").read_text() == "final content"
         assert (tmp_path / "hitl" / "chat_stage_08.jsonl").exists()
+
+    def test_finalize_preserves_external_edits(self, tmp_path: Path) -> None:
+        """finalize() must not overwrite files the user edited on disk."""
+        stage_dir = tmp_path / "stage-08"
+        stage_dir.mkdir()
+        (stage_dir / "notes.md").write_text("original")
+
+        collab = CollaborationSession(run_dir=tmp_path)
+        collab.stage_num = 8
+        collab.shared_artifacts["notes.md"] = "original"
+
+        # Simulate external edit (user edits file on disk directly)
+        (stage_dir / "notes.md").write_text("externally edited")
+
+        result = collab.finalize()
+        # finalize should pick up the external edit, not overwrite it
+        assert result["notes.md"] == "externally edited"
+        assert (stage_dir / "notes.md").read_text() == "externally edited"
+
+    def test_ai_proposes_edit_writes_to_disk(self, tmp_path: Path) -> None:
+        """ai_proposes_edit() must persist changes to disk."""
+        stage_dir = tmp_path / "stage-08"
+        stage_dir.mkdir()
+        (stage_dir / "hypotheses.md").write_text("original")
+
+        collab = CollaborationSession(run_dir=tmp_path)
+        collab.stage_num = 8
+        collab.shared_artifacts["hypotheses.md"] = "original"
+
+        collab.ai_proposes_edit("hypotheses.md", "ai improved content")
+        assert (stage_dir / "hypotheses.md").read_text() == "ai improved content"
+        assert len(collab.revision_history) == 1
+        assert collab.revision_history[0]["action"] == "ai_proposal"
+
+    def test_ai_responds_parses_edits(self, tmp_path: Path) -> None:
+        """ai_responds() must detect <<<FILE:...>>> blocks and apply edits."""
+        stage_dir = tmp_path / "stage-08"
+        stage_dir.mkdir()
+        (stage_dir / "hypotheses.md").write_text("original")
+
+        collab = CollaborationSession(run_dir=tmp_path)
+        collab.stage_num = 8
+        collab.shared_artifacts["hypotheses.md"] = "original"
+
+        llm = MagicMock()
+        llm.chat.return_value = (
+            "Here is my suggestion:\n"
+            "<<<FILE: hypotheses.md>>>\n"
+            "# Improved Hypothesis\nBetter content\n"
+            "<<<END_FILE>>>\n"
+            "Let me know what you think."
+        )
+        collab.chat.add_human_message("please improve")
+        response = collab.ai_responds(llm)
+        assert "suggestion" in response
+        assert collab.shared_artifacts["hypotheses.md"] == "# Improved Hypothesis\nBetter content\n"
+        assert (stage_dir / "hypotheses.md").read_text() == "# Improved Hypothesis\nBetter content\n"
 
 
 # ══════════════════════════════════════════════════════════════════

@@ -94,6 +94,22 @@ def autonomous_preset() -> HITLConfig:
     return HITLConfig(enabled=False, mode="full-auto")
 
 
+def gate_only_preset() -> HITLConfig:
+    """Gate-only mode: pause only at the 3 gate stages (5, 9, 20).
+
+    Minimal human involvement — just approve/reject at gates.
+    """
+    return HITLConfig(enabled=True, mode="gate-only")
+
+
+def step_by_step_preset() -> HITLConfig:
+    """Step-by-step mode: pause after every stage.
+
+    Maximum human involvement — review every stage output.
+    """
+    return HITLConfig(enabled=True, mode="step-by-step")
+
+
 # ---------------------------------------------------------------------------
 # Preset registry
 # ---------------------------------------------------------------------------
@@ -104,6 +120,8 @@ PRESETS: dict[str, callable] = {
     "express": express_preset,
     "thorough": thorough_preset,
     "learning": learning_preset,
+    "step-by-step": step_by_step_preset,
+    "gate-only": gate_only_preset,
     "autonomous": autonomous_preset,
     "full-auto": autonomous_preset,
 }

@@ -224,7 +224,12 @@ def build_stage_context(
         "- Help the human researcher improve the stage output.",
         "- Be specific and actionable in your suggestions.",
         "- When the human is satisfied, they will approve the output.",
-        "- If asked to modify the output, provide the complete updated version.",
+        "- To edit a file, wrap the full updated content in edit markers:",
+        "  <<<FILE: filename>>>",
+        "  ...complete file content...",
+        "  <<<END_FILE>>>",
+        "- Edits are applied automatically when you use this format.",
+        "- Only use this format for files listed in the current stage output.",
     ])
 
     return "\n".join(lines)

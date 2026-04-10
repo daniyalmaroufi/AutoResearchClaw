@@ -22,6 +22,7 @@
   <a href="https://github.com/aiming-lab/AutoResearchClaw"><img src="https://img.shields.io/badge/GitHub-AutoResearchClaw-181717?logo=github" alt="GitHub"></a>
   <a href="#integração-openclaw"><img src="https://img.shields.io/badge/OpenClaw-Compatible-ff4444?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" alt="OpenClaw Compatible"></a>
   <a href="https://discord.gg/u4ksqW5P"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="#%EF%B8%8F-ethics-and-responsible-use"><img src="https://img.shields.io/badge/⚠️_Ethics-Read_Before_Use-orange" alt="Ethics Guidelines"></a>
 </p>
 
 <p align="center">
@@ -63,6 +64,7 @@
 ---
 
 ## 🔥 News
+- **[04/08/2026]** **Diretrizes de ética e uso responsável!** — Adicionamos diretrizes éticas abrangentes cobrindo integridade acadêmica, transparência, verificação de citações, prevenção de uso indevido e considerações de duplo uso. Artigos gerados por IA são rascunhos — a revisão humana é essencial.
 - **[04/01/2026]** **v0.4.0** — **Sistema Co-Piloto Human-in-the-Loop** — O AutoResearchClaw não é mais puramente autônomo. O novo sistema HITL adiciona 6 modos de intervenção (`full-auto`, `gate-only`, `checkpoint`, `step-by-step`, `co-pilot`, `custom`), políticas por estágio e colaboração profunda humano-IA. Inclui: Idea Workshop para co-criação de hipóteses, Baseline Navigator para revisão de design experimental, Paper Co-Writer para redação colaborativa, SmartPause (intervenção dinâmica baseada em confiança), aprendizado de intervenção ALHF, verificação de afirmações anti-alucinação, guardrails de orçamento de custo, ramificação de pipeline para exploração paralela de hipóteses e comandos CLI (`attach`/`status`/`approve`/`reject`/`guide`). **[→ Guia Completo HITL](HITL_GUIDE.md)**
 - **[03/30/2026]** **Carregamento Flexível de Skills** — O AutoResearchClaw agora suporta o carregamento de skills open-source e customizadas de qualquer disciplina para aprimorar ainda mais sua experiência de pesquisa. 19 skills pré-carregadas estão incluídas como referências prontas para uso, cobrindo escrita científica, design experimental, química, biologia e mais — incluindo uma skill de evolução agêntica [A-Evolve](https://github.com/A-EVO-Lab/a-evolve) contribuída pela comunidade. Carregue as suas via `researchclaw skills install` ou coloque um `SKILL.md` em `.claude/skills/`. Veja [Biblioteca de Skills](#-biblioteca-de-skills).
 - **[03/22/2026]** [v0.3.2](https://github.com/aiming-lab/AutoResearchClaw/releases/tag/v0.3.2) — **Suporte multiplataforma + grande estabilidade** — O AutoResearchClaw agora funciona com qualquer agente compativel com ACP (Claude Code, Codex CLI, Copilot CLI, Gemini CLI, Kimi CLI) e suporta plataformas de mensagens (Discord, Telegram, Lark, WeChat) via ponte OpenClaw. Novo backend de geracao de codigo CLI-agent que delega os Stages 10 e 13 a agentes CLI externos com controle de orcamento e gerenciamento de timeout. Inclui sistema anti-fabricacao (VerifiedRegistry + loop de diagnostico e reparo), 100+ correcoes de bugs, refatoracao modular do executor, auto-deteccao de `--resume`, endurecimento de retries LLM e correcoes da comunidade.
@@ -753,6 +755,24 @@ Inspirado por:
 - 🔬 [AI Scientist](https://github.com/SakanaAI/AI-Scientist) (Sakana AI) — Pioneiro em pesquisa automatizada
 - 🧠 [AutoResearch](https://github.com/karpathy/autoresearch) (Andrej Karpathy) — Automação de pesquisa de ponta a ponta
 - 🌐 [FARS](https://analemma.ai/blog/introducing-fars/) (Analemma) — Fully Automated Research System
+
+---
+
+## ⚠️ Ética e uso responsável
+
+AutoResearchClaw é uma ferramenta de assistência à pesquisa, não um substituto para pesquisadores humanos. Pedimos a todos os usuários que respeitem os seguintes princípios:
+
+**Integridade acadêmica.** Os artigos gerados pelo AutoResearchClaw devem ser tratados como rascunhos que requerem revisão, verificação e modificação humana completa antes da submissão. Os autores listados em um artigo assumem total responsabilidade pelo seu conteúdo, afirmações e precisão. O uso de texto gerado por IA sem supervisão humana adequada ou divulgação pode violar as políticas de integridade acadêmica da sua instituição ou da conferência-alvo.
+
+**Transparência e divulgação.** Recomendamos fortemente divulgar o uso do AutoResearchClaw (ou qualquer assistência de IA) nos manuscritos, seguindo as políticas da conferência-alvo (por exemplo, NeurIPS, ICML, ICLR e outras grandes conferências agora exigem divulgação de assistência de escrita por IA). O Co-Pilot com humano no circuito existe precisamente para manter um controle humano significativo sobre as decisões de pesquisa.
+
+**Citações e atribuição.** O AutoResearchClaw verifica citações por meio de um pipeline de 4 camadas, mas nenhum sistema automatizado é perfeito. Os usuários devem verificar manualmente antes da submissão que todas as citações são reais, relevantes e corretamente referenciadas. Citações fabricadas ou mal atribuídas comprometem a confiança científica.
+
+**Risco de uso indevido.** Como qualquer ferramenta poderosa, o AutoResearchClaw pode ser usado indevidamente para produzir em massa pesquisas de baixa qualidade ou enganosas. Não apoiamos o uso deste sistema para gerar fábricas de artigos, submissões fraudulentas ou conteúdo destinado a manipular a revisão por pares. Se detectado abuso sistemático, reservamo-nos o direito de atualizar a licença ou os termos de uso.
+
+**Uso dual.** Sistemas de pesquisa autônomos levantam questões mais amplas sobre o futuro do trabalho científico, normas de autoria e processos de revisão. Damos as boas-vindas às discussões da comunidade sobre esses temas e estamos comprometidos com o desenvolvimento responsável desta tecnologia.
+
+Ao usar o AutoResearchClaw, você concorda em usá-lo de maneira consistente com estes princípios e com as diretrizes éticas da sua instituição e comunidade de pesquisa.
 
 ---
 

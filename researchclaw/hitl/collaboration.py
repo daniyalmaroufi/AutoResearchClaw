@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,11 @@ from typing import Any
 from researchclaw.hitl.chat import ChatMessage, ChatSession, build_stage_context
 
 logger = logging.getLogger(__name__)
+
+# Pattern for AI-proposed file edits embedded in responses.
+_EDIT_PATTERN = re.compile(
+    r"<<<FILE:\s*(.+?)>>>\n(.*?)<<<END_FILE>>>", re.DOTALL
+)
 
 
 @dataclass
@@ -31,6 +37,7 @@ class CollaborationSession:
     # Shared workspace
     shared_artifacts: dict[str, str] = field(default_factory=dict)
     revision_history: list[dict[str, str]] = field(default_factory=list)
+    _modified_artifacts: set[str] = field(default_factory=set)
     finalized: bool = False
 
     def initialize(
@@ -74,13 +81,33 @@ class CollaborationSession:
         self.chat.add_human_message(message)
 
     def ai_responds(self, llm_client: Any) -> str:
-        """Get AI response to the current conversation."""
-        return self.chat.get_ai_response(llm_client)
+        """Get AI response and apply any proposed file edits.
+
+        The AI can embed edits in its response using the format:
+            <<<FILE: filename>>>
+            ...content...
+            <<<END_FILE>>>
+
+        Detected edits are applied via ``ai_proposes_edit()``.
+        """
+        response = self.chat.get_ai_response(llm_client)
+
+        # Parse structured edit blocks from the response
+        for match in _EDIT_PATTERN.finditer(response):
+            filename = match.group(1).strip()
+            content = match.group(2)
+            # Only apply edits to known artifacts to avoid arbitrary writes
+            if filename in self.shared_artifacts:
+                self.ai_proposes_edit(filename, content)
+                logger.info("AI edited artifact: %s", filename)
+
+        return response
 
     def human_edits_artifact(self, filename: str, content: str) -> None:
         """Human directly edits a shared artifact."""
         old_content = self.shared_artifacts.get(filename, "")
         self.shared_artifacts[filename] = content
+        self._modified_artifacts.add(filename)
         self.revision_history.append({
             "action": "human_edit",
             "file": filename,
@@ -97,9 +124,10 @@ class CollaborationSession:
     def ai_proposes_edit(
         self, filename: str, content: str
     ) -> None:
-        """AI proposes an edit to a shared artifact."""
+        """AI proposes an edit to a shared artifact and writes it to disk."""
         old_content = self.shared_artifacts.get(filename, "")
         self.shared_artifacts[filename] = content
+        self._modified_artifacts.add(filename)
         self.revision_history.append({
             "action": "ai_proposal",
             "file": filename,
@@ -107,16 +135,43 @@ class CollaborationSession:
             "new_length": str(len(content)),
         })
 
+        # Write to disk immediately so edits are not lost
+        if self.run_dir:
+            stage_dir = self.run_dir / f"stage-{self.stage_num:02d}"
+            stage_dir.mkdir(parents=True, exist_ok=True)
+            (stage_dir / filename).write_text(content, encoding="utf-8")
+
     def finalize(self) -> dict[str, str]:
-        """End collaboration and write all artifacts to disk.
+        """End collaboration and write modified artifacts to disk.
+
+        Artifacts edited during the session (by human or AI) are written.
+        Unmodified artifacts are re-read from disk so that any external
+        edits made during the session are preserved rather than overwritten.
 
         Returns the final shared artifacts dict.
         """
         if self.run_dir:
             stage_dir = self.run_dir / f"stage-{self.stage_num:02d}"
             stage_dir.mkdir(parents=True, exist_ok=True)
-            for fname, content in self.shared_artifacts.items():
-                (stage_dir / fname).write_text(content, encoding="utf-8")
+
+            # Refresh unmodified artifacts from disk (preserves external edits)
+            for fname in list(self.shared_artifacts):
+                if fname not in self._modified_artifacts:
+                    fpath = stage_dir / fname
+                    if fpath.is_file():
+                        try:
+                            self.shared_artifacts[fname] = fpath.read_text(
+                                encoding="utf-8"
+                            )
+                        except (OSError, UnicodeDecodeError):
+                            pass
+
+            # Only write artifacts that were modified in this session
+            for fname in self._modified_artifacts:
+                if fname in self.shared_artifacts:
+                    (stage_dir / fname).write_text(
+                        self.shared_artifacts[fname], encoding="utf-8"
+                    )
 
             # Save chat history
             hitl_dir = self.run_dir / "hitl"

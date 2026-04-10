@@ -22,6 +22,7 @@
   <a href="https://github.com/aiming-lab/AutoResearchClaw"><img src="https://img.shields.io/badge/GitHub-AutoResearchClaw-181717?logo=github" alt="GitHub"></a>
   <a href="#openclaw-集成"><img src="https://img.shields.io/badge/OpenClaw-Compatible-ff4444?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" alt="OpenClaw Compatible"></a>
   <a href="https://discord.gg/u4ksqW5P"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="#%EF%B8%8F-ethics-and-responsible-use"><img src="https://img.shields.io/badge/⚠️_Ethics-Read_Before_Use-orange" alt="Ethics Guidelines"></a>
 </p>
 
 <p align="center">
@@ -63,6 +64,7 @@
 ---
 
 ## 🔥 News
+- **[04/08/2026]** **伦理与负责任使用准则！** — 新增全面的伦理准则，涵盖学术诚信、透明披露、引用验证、防止滥用和双重用途考量。AI 生成的论文是草稿，不是成品——人工审查不可或缺。
 - **[04/01/2026]** **v0.4.0** — **人机协作 Co-Pilot 系统** — AutoResearchClaw 不再是纯自动化工具。新增 HITL 系统支持 6 种干预模式（`full-auto`、`gate-only`、`checkpoint`、`step-by-step`、`co-pilot`、`custom`），支持逐阶段策略配置与深度人机协作。包括：Idea Workshop（假设共创）、Baseline Navigator（实验设计审核）、Paper Co-Writer（协作撰写论文）、SmartPause（基于置信度的动态暂停）、ALHF 干预学习、反幻觉声明验证、成本预算护栏、流水线分支并行探索假设，以及 CLI 命令（`attach`/`status`/`approve`/`reject`/`guide`）。**[→ 完整 HITL 指南](HITL_GUIDE.md)**
 - **[03/30/2026]** **灵活技能加载** — AutoResearchClaw 现已支持从任何学科加载开源和自定义技能。内置 19 个预加载技能作为即用参考，覆盖科学写作、实验设计、化学、生物等领域，包括社区贡献的 [A-Evolve](https://github.com/A-EVO-Lab/a-evolve) 自进化技能。通过 `researchclaw skills install` 加载或将 `SKILL.md` 放入 `.claude/skills/`。参见[技能库](#-技能库)。
 - **[03/22/2026]** [v0.3.2](https://github.com/aiming-lab/AutoResearchClaw/releases/tag/v0.3.2) — **跨平台支持 + 重大稳定性更新** — AutoResearchClaw 现已支持任何 ACP 兼容的 AI 代理后端（Claude Code、Codex CLI、Copilot CLI、Gemini CLI、Kimi CLI），并通过 OpenClaw 桥接支持消息平台（Discord、Telegram、飞书、微信）。新增 CLI-agent 代码生成后端，将 Stage 10 和 13 委托给外部 CLI agent，支持预算控制和超时管理。同时包含反数据捏造系统（VerifiedRegistry + 实验诊断与修复循环），100+ 个 bug 修复，模块化 executor 重构，`--resume` 自动检测，LLM 重试加固，以及社区反馈修复。
@@ -753,6 +755,24 @@ openclaw_bridge:
 - 🔬 [AI Scientist](https://github.com/SakanaAI/AI-Scientist)（Sakana AI）— 自动化研究先驱
 - 🧠 [AutoResearch](https://github.com/karpathy/autoresearch)（Andrej Karpathy）— 端到端研究自动化
 - 🌐 [FARS](https://analemma.ai/blog/introducing-fars/)（Analemma）— 全自动研究系统
+
+---
+
+## ⚠️ 伦理与负责任使用
+
+AutoResearchClaw 是一个研究辅助工具，不是人类研究者的替代品。我们要求所有用户遵守以下原则：
+
+**学术诚信。** AutoResearchClaw 生成的论文应被视为草稿，在提交前需要经过充分的人工审查、验证和修改。论文上列出的作者对其内容、声明和正确性承担全部责任。未经充分人工监督或披露而使用 AI 生成的文本，可能违反您所在机构或目标会议的学术诚信政策。
+
+**透明与披露。** 我们强烈建议用户在稿件中披露 AutoResearchClaw（或任何 AI 辅助）的使用，遵守目标会议的政策（例如 NeurIPS、ICML、ICLR 等主要会议现在都要求披露 AI 写作辅助）。人机协作 Co-Pilot 的存在正是为了让人类对研究决策保持有意义的控制。
+
+**引用与归属。** AutoResearchClaw 通过 4 层流水线验证引用，但没有自动化系统是完美的。用户必须在提交前手动验证所有引用是真实的、相关的、且被正确引用。伪造或错误归属的引用会破坏科学信任。
+
+**滥用风险。** 与任何强大的工具一样，AutoResearchClaw 可能被滥用来大规模生产低质量或误导性的研究。我们不支持使用本系统生成论文工厂、欺诈性投稿或旨在操纵同行评审的内容。如发现系统性滥用，我们保留更新许可证或使用条款的权利。
+
+**双重用途。** 自主研究系统引发了关于科学劳动的未来、作者署名规范和评审流程的更广泛问题。我们欢迎社区就这些议题展开讨论，并致力于负责任地开发这项技术。
+
+使用 AutoResearchClaw 即表示您同意以符合这些原则以及您所在机构和研究社区的伦理准则的方式使用它。
 
 ---
 

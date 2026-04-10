@@ -22,6 +22,7 @@
   <a href="https://github.com/aiming-lab/AutoResearchClaw"><img src="https://img.shields.io/badge/GitHub-AutoResearchClaw-181717?logo=github" alt="GitHub"></a>
   <a href="#-openclaw-integration"><img src="https://img.shields.io/badge/OpenClaw-Compatible-ff4444?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" alt="OpenClaw Compatible"></a>
   <a href="https://discord.gg/u4ksqW5P"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="#%EF%B8%8F-ethics-and-responsible-use"><img src="https://img.shields.io/badge/⚠️_Ethics-Read_Before_Use-orange" alt="Ethics Guidelines"></a>
 </p>
 
 <p align="center">
@@ -63,6 +64,7 @@
 ---
 
 ## 🔥 News
+- **[04/08/2026]** **Ethik- und Richtlinien zur verantwortungsvollen Nutzung!** — Umfassende Ethikrichtlinien zu akademischer Integrität, Transparenz, Zitatverifizierung, Missbrauchsprävention und Dual-Use hinzugefügt. KI-generierte Arbeiten sind Entwürfe — menschliche Überprüfung ist unerlässlich.
 - **[04/01/2026]** **v0.4.0** — **Human-in-the-Loop Co-Pilot-System** — AutoResearchClaw ist nicht mehr rein autonom. Das neue HITL-System fuegt 6 Interventionsmodi hinzu (`full-auto`, `gate-only`, `checkpoint`, `step-by-step`, `co-pilot`, `custom`), stufenspezifische Richtlinien und tiefe Mensch-KI-Kollaboration. Enthalten: Ideen-Workshop zur gemeinsamen Hypothesenerstellung, Baseline-Navigator zur Ueberpruefung des Experimentdesigns, Paper-Co-Writer fuer kollaboratives Verfassen, SmartPause (konfidenzgesteuerte dynamische Intervention), ALHF-Interventionslernen, Anti-Halluzinations-Behauptungsverifikation, Kostenbudget-Leitplanken, Pipeline-Verzweigung fuer parallele Hypothesenerkundung und CLI-Befehle (`attach`/`status`/`approve`/`reject`/`guide`). **[→ Vollstaendige HITL-Anleitung](HITL_GUIDE.md)**
 - **[03/30/2026]** **Flexibles Skill-Laden** — AutoResearchClaw unterstuetzt jetzt das Laden von Open-Source- und benutzerdefinierten Skills aus jeder Disziplin, um Ihr Forschungserlebnis weiter zu verbessern. 19 vorinstallierte Skills sind als sofort einsetzbare Referenzen enthalten, die wissenschaftliches Schreiben, Experimentdesign, Chemie, Biologie und mehr abdecken — einschliesslich eines [A-Evolve](https://github.com/A-EVO-Lab/a-evolve) Agentic-Evolution-Skills, der von der Community beigesteuert wurde. Laden Sie eigene ueber `researchclaw skills install` oder legen Sie eine `SKILL.md` in `.claude/skills/` ab. Siehe [Skills-Bibliothek](#-skills-bibliothek).
 - **[03/22/2026]** [v0.3.2](https://github.com/aiming-lab/AutoResearchClaw/releases/tag/v0.3.2) — **Plattformuebergreifende Unterstuetzung + grosse Stabilitaet** — AutoResearchClaw laeuft jetzt mit jedem ACP-kompatiblen Agenten-Backend (Claude Code, Codex CLI, Copilot CLI, Gemini CLI, Kimi CLI) und unterstuetzt Messaging-Plattformen (Discord, Telegram, Lark, WeChat) ueber die OpenClaw-Bruecke. Neues CLI-Agent-Code-Generierungs-Backend delegiert Stages 10 und 13 an externe CLI-Agenten mit Budgetkontrolle und Timeout-Management. Enthaelt Anti-Fabrication-System (VerifiedRegistry + Experiment-Diagnose- und Reparaturschleife), 100+ Bugfixes, modulares Executor-Refactoring, `--resume` Auto-Erkennung, LLM-Retry-Haertung und Community-Fixes.
@@ -753,6 +755,24 @@ Inspiriert von:
 - 🔬 [AI Scientist](https://github.com/SakanaAI/AI-Scientist) (Sakana AI) — Pionier der automatisierten Forschung
 - 🧠 [AutoResearch](https://github.com/karpathy/autoresearch) (Andrej Karpathy) — End-to-End-Forschungsautomatisierung
 - 🌐 [FARS](https://analemma.ai/blog/introducing-fars/) (Analemma) — Fully Automated Research System
+
+---
+
+## ⚠️ Ethik und verantwortungsvolle Nutzung
+
+AutoResearchClaw ist ein Forschungshilfswerkzeug, kein Ersatz für menschliche Forscher. Wir bitten alle Nutzer, die folgenden Grundsätze einzuhalten:
+
+**Akademische Integrität.** Von AutoResearchClaw generierte Arbeiten sollten als Entwürfe behandelt werden, die vor der Einreichung einer gründlichen menschlichen Überprüfung, Verifizierung und Überarbeitung bedürfen. Die auf einer Arbeit aufgeführten Autoren tragen die volle Verantwortung für deren Inhalt, Aussagen und Korrektheit. Die Verwendung von KI-generiertem Text ohne angemessene menschliche Aufsicht oder Offenlegung kann gegen die akademischen Integritätsrichtlinien Ihrer Institution oder der Zielkonferenz verstoßen.
+
+**Transparenz und Offenlegung.** Wir empfehlen dringend, die Nutzung von AutoResearchClaw (oder jeder KI-Unterstützung) in Manuskripten offenzulegen, gemäß den Richtlinien der Zielkonferenz (z. B. verlangen NeurIPS, ICML, ICLR und andere große Konferenzen jetzt die Offenlegung von KI-Schreibhilfe). Der Human-in-the-Loop Co-Pilot existiert gerade deshalb, um eine sinnvolle menschliche Kontrolle über Forschungsentscheidungen aufrechtzuerhalten.
+
+**Zitation und Zuordnung.** AutoResearchClaw verifiziert Zitate über eine 4-Schichten-Pipeline, aber kein automatisiertes System ist perfekt. Nutzer müssen vor der Einreichung manuell überprüfen, dass alle Zitate echt, relevant und korrekt referenziert sind. Gefälschte oder falsch zugeordnete Zitate untergraben das wissenschaftliche Vertrauen.
+
+**Missbrauchsrisiko.** Wie jedes leistungsstarke Werkzeug kann AutoResearchClaw missbraucht werden, um minderwertige oder irreführende Forschung in großem Maßstab zu produzieren. Wir unterstützen nicht die Verwendung dieses Systems zur Erzeugung von Papierfabriken, betrügerischen Einreichungen oder Inhalten, die darauf abzielen, das Peer-Review-Verfahren zu manipulieren. Bei systematischem Missbrauch behalten wir uns das Recht vor, die Lizenz oder Nutzungsbedingungen zu aktualisieren.
+
+**Doppelter Verwendungszweck.** Autonome Forschungssysteme werfen breitere Fragen über die Zukunft der wissenschaftlichen Arbeit, Autorenschaftsnormen und Begutachtungsprozesse auf. Wir begrüßen Diskussionen der Gemeinschaft zu diesen Themen und setzen uns für eine verantwortungsvolle Entwicklung dieser Technologie ein.
+
+Durch die Nutzung von AutoResearchClaw stimmen Sie zu, es in einer Weise zu verwenden, die mit diesen Grundsätzen sowie den ethischen Richtlinien Ihrer Institution und Forschungsgemeinschaft vereinbar ist.
 
 ---
 

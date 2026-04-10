@@ -22,6 +22,7 @@
   <a href="https://github.com/aiming-lab/AutoResearchClaw"><img src="https://img.shields.io/badge/GitHub-AutoResearchClaw-181717?logo=github" alt="GitHub"></a>
   <a href="#openclaw-통합"><img src="https://img.shields.io/badge/OpenClaw-Compatible-ff4444?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" alt="OpenClaw Compatible"></a>
   <a href="https://discord.gg/u4ksqW5P"><img src="https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="#%EF%B8%8F-ethics-and-responsible-use"><img src="https://img.shields.io/badge/⚠️_Ethics-Read_Before_Use-orange" alt="Ethics Guidelines"></a>
 </p>
 
 <p align="center">
@@ -63,6 +64,7 @@
 ---
 
 ## 🔥 News
+- **[04/08/2026]** **윤리 및 책임 있는 사용 가이드라인!** — 학술 무결성, 투명성, 인용 검증, 오용 방지, 이중 사용에 관한 포괄적인 윤리 가이드라인을 추가했습니다. AI 생성 논문은 초안이며 완성품이 아닙니다. 인간의 검토가 필수적입니다.
 - **[04/01/2026]** **v0.4.0** — **Human-in-the-Loop 코파일럿 시스템** — AutoResearchClaw는 더 이상 순수 자율 시스템이 아닙니다. 새로운 HITL 시스템은 6가지 개입 모드(`full-auto`, `gate-only`, `checkpoint`, `step-by-step`, `co-pilot`, `custom`), 단계별 정책, 깊은 인간-AI 협업을 추가합니다. 포함 사항: 가설 공동 창작을 위한 아이디어 워크숍, 실험 설계 검토를 위한 베이스라인 내비게이터, 협력적 작성을 위한 논문 코라이터, SmartPause(신뢰도 기반 동적 개입), ALHF 개입 학습, 반환각 클레임 검증, 비용 예산 가드레일, 병렬 가설 탐색을 위한 파이프라인 분기, CLI 명령어(`attach`/`status`/`approve`/`reject`/`guide`). **[→ 전체 HITL 가이드](HITL_GUIDE.md)**
 - **[03/30/2026]** **유연한 스킬 로딩** — AutoResearchClaw는 이제 모든 분야의 오픈소스 및 커스텀 스킬을 로딩하여 연구 경험을 더욱 향상시킬 수 있습니다. 과학적 글쓰기, 실험 설계, 화학, 생물학 등을 포괄하는 19개의 사전 로드된 스킬이 즉시 사용 가능한 참고자료로 포함되어 있으며, 커뮤니티가 기여한 [A-Evolve](https://github.com/A-EVO-Lab/a-evolve) 에이전트 진화 스킬도 포함됩니다. `researchclaw skills install`로 직접 로드하거나 `.claude/skills/`에 `SKILL.md`를 추가하세요. [스킬 라이브러리](#-스킬-라이브러리) 참조.
 - **[03/22/2026]** [v0.3.2](https://github.com/aiming-lab/AutoResearchClaw/releases/tag/v0.3.2) — **크로스 플랫폼 지원 + 주요 안정성 개선** — ACP 호환 AI 에이전트 백엔드(Claude Code, Codex CLI, Copilot CLI, Gemini CLI, Kimi CLI) 지원 및 OpenClaw 브릿지를 통한 메시징 플랫폼(Discord, Telegram, Lark, WeChat) 지원 추가. 새로운 CLI-agent 코드 생성 백엔드가 Stage 10 및 13을 외부 CLI 에이전트에 위임하며, 예산 제어 및 타임아웃 관리를 지원. 반데이터 조작 시스템(VerifiedRegistry + 실험 진단 및 복구 루프), 100건 이상의 버그 수정, 모듈러 executor 리팩토링, `--resume` 자동 감지, LLM 재시도 강화, 커뮤니티 보고 수정 포함.
@@ -717,6 +719,24 @@ openclaw_bridge:
 - 🔬 [AI Scientist](https://github.com/SakanaAI/AI-Scientist) (Sakana AI) — 자동화 연구의 선구자
 - 🧠 [AutoResearch](https://github.com/karpathy/autoresearch) (Andrej Karpathy) — 엔드투엔드 연구 자동화
 - 🌐 [FARS](https://analemma.ai/blog/introducing-fars/) (Analemma) — 완전 자동 연구 시스템
+
+---
+
+## ⚠️ 윤리 및 책임 있는 사용
+
+AutoResearchClaw는 연구 보조 도구이며, 인간 연구자를 대체하는 것이 아닙니다. 모든 사용자에게 다음 원칙을 준수할 것을 요청합니다:
+
+**학술적 진실성.** AutoResearchClaw가 생성한 논문은 초안으로 취급해야 하며, 제출 전에 충분한 인간 검토, 검증 및 수정이 필요합니다. 논문에 기재된 저자는 그 내용, 주장 및 정확성에 대해 전적인 책임을 집니다. 충분한 인간 감독이나 공개 없이 AI 생성 텍스트를 사용하면 소속 기관이나 대상 학회의 학술적 진실성 정책을 위반할 수 있습니다.
+
+**투명성과 공개.** 대상 학회의 정책에 따라 원고에서 AutoResearchClaw(또는 모든 AI 보조)의 사용을 공개할 것을 강력히 권장합니다(예: NeurIPS, ICML, ICLR 등 주요 학회는 현재 AI 작성 보조 공개를 요구합니다). 인간 참여형 Co-Pilot은 연구 의사결정에 대한 의미 있는 인간 통제를 유지하기 위해 존재합니다.
+
+**인용 및 귀속.** AutoResearchClaw는 4단계 파이프라인으로 인용을 검증하지만, 완벽한 자동화 시스템은 없습니다. 사용자는 제출 전에 모든 인용이 실제로 존재하고, 관련성이 있으며, 올바르게 인용되었는지 수동으로 확인해야 합니다. 위조되거나 잘못 귀속된 인용은 과학적 신뢰를 훼손합니다.
+
+**오용 위험.** 모든 강력한 도구와 마찬가지로 AutoResearchClaw는 저품질 또는 오해를 유발하는 연구를 대량 생산하는 데 오용될 수 있습니다. 논문 공장, 사기 투고 또는 동료 심사를 조작하려는 콘텐츠 생성에 본 시스템을 사용하는 것을 지지하지 않습니다. 체계적인 오용이 발견될 경우 라이선스 또는 이용 약관을 업데이트할 권리를 보유합니다.
+
+**이중 용도.** 자율 연구 시스템은 과학 노동의 미래, 저자 자격 규범, 심사 프로세스에 관한 더 넓은 질문을 제기합니다. 이러한 주제에 대한 커뮤니티 논의를 환영하며, 이 기술의 책임 있는 개발에 전념하고 있습니다.
+
+AutoResearchClaw를 사용함으로써 이러한 원칙과 소속 기관 및 연구 커뮤니티의 윤리 지침에 부합하는 방식으로 사용하는 데 동의하는 것으로 간주됩니다.
 
 ---
 
